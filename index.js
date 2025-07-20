@@ -22,7 +22,7 @@ const server = http.createServer((req, res) => {
   try {
     if (url.startsWith("/products/") && met == "GET") {
       try {
-        let id = parseInt(req.url.split("/")[2]);
+        let id = parseInt(url.split("/")[2]);
         let topilgan = products.find((p) => p.id === id);
         if (topilgan) {
           res.writeHead(200, { "Content-Type": "application/json" });
@@ -38,16 +38,14 @@ const server = http.createServer((req, res) => {
           JSON.stringify({ error: "Server error while finding product" })
         );
       }
-    } else if (req.url.startsWith("/products") && req.method == "GET") {
+    } else if (url.startsWith("/products") && met == "GET") {
       try {
-        const parsedUrl = new URL(req.url, `http://${req.headers.host}`);
+        const parsedUrl = new URL(url, `http://${req.headers.host}`);
         const searchParams = parsedUrl.searchParams;
         const filters = {
           color: searchParams.get("color"),
           brand: searchParams.get("brand"),
         };
-
-        console.log("FILTERS:", filters); // <-- Buni tekshiring
 
         let filteredProducts = products.filter((product) => {
           return Object.entries(filters).every(([key, value]) => {
@@ -65,7 +63,7 @@ const server = http.createServer((req, res) => {
           JSON.stringify({ error: "Server error while filtering products" })
         );
       }
-    } else if (req.url == "/products" && req.method == "POST") {
+    } else if (url == "/products" && met == "POST") {
       let a = "";
       req.on("data", (chunk) => {
         a += chunk;
@@ -82,14 +80,14 @@ const server = http.createServer((req, res) => {
           res.end(JSON.stringify({ error: "Invalid product data" }));
         }
       });
-    } else if (req.url.startsWith("/products") && req.method == "PATCH") {
+    } else if (url.startsWith("/products") && met == "PATCH") {
       let info = "";
       req.on("data", (ch) => {
         info += ch;
       });
       req.on("end", () => {
         try {
-          let id = parseInt(req.url.split("/")[2]);
+          let id = parseInt(url.split("/")[2]);
           let eski = products.find((u) => u.id === id);
           if (!eski) throw new Error("Product not found");
           let i = products.indexOf(eski);
@@ -102,9 +100,9 @@ const server = http.createServer((req, res) => {
           res.end(JSON.stringify({ error: err.message }));
         }
       });
-    } else if (req.url.startsWith("/products") && req.method == "DELETE") {
+    } else if (url.startsWith("/products") && met == "DELETE") {
       try {
-        let id = parseInt(req.url.split("/")[2]);
+        let id = parseInt(url.split("/")[2]);
         let eski = products.find((u) => u.id === id);
         if (!eski) throw new Error("Product not found");
         let i = products.indexOf(eski);
@@ -115,7 +113,7 @@ const server = http.createServer((req, res) => {
         res.writeHead(404, { "Content-Type": "application/json" });
         res.end(JSON.stringify({ error: err.message }));
       }
-    } else if (req.url == "/users" && req.method == "GET") {
+    } else if (url == "/users" && met == "GET") {
       try {
         let formatted = JSON.stringify(users);
         res.writeHead(200, { "Content-Type": "application/json" });
@@ -125,9 +123,9 @@ const server = http.createServer((req, res) => {
         res.writeHead(500, { "Content-Type": "application/json" });
         res.end(JSON.stringify({ error: "Server error while getting users" }));
       }
-    } else if (req.url.startsWith("/users/") && req.method == "GET") {
+    } else if (url.startsWith("/users/") && met == "GET") {
       try {
-        let id = parseInt(req.url.split("/")[2]);
+        let id = parseInt(url.split("/")[2]);
         let topilgan = users.find((u) => u.id === id);
         if (topilgan) {
           res.writeHead(200, { "Content-Type": "application/json" });
@@ -141,7 +139,7 @@ const server = http.createServer((req, res) => {
         res.writeHead(500, { "Content-Type": "application/json" });
         res.end(JSON.stringify({ error: "Server error while finding user" }));
       }
-    } else if (req.url == "/users" && req.method == "POST") {
+    } else if (url == "/users" && met == "POST") {
       let a = "";
       req.on("data", (chunk) => {
         a += chunk;
@@ -158,14 +156,14 @@ const server = http.createServer((req, res) => {
           res.end(JSON.stringify({ error: "Invalid user data" }));
         }
       });
-    } else if (req.url.startsWith("/users") && req.method == "PATCH") {
+    } else if (url.startsWith("/users") && met == "PATCH") {
       let info = "";
       req.on("data", (ch) => {
         info += ch;
       });
       req.on("end", () => {
         try {
-          let id = parseInt(req.url.split("/")[2]);
+          let id = parseInt(url.split("/")[2]);
           let eski = users.find((u) => u.id === id);
           if (!eski) throw new Error("User not found");
           let i = users.indexOf(eski);
@@ -178,9 +176,9 @@ const server = http.createServer((req, res) => {
           res.end(JSON.stringify({ error: err.message }));
         }
       });
-    } else if (req.url.startsWith("/users") && req.method == "DELETE") {
+    } else if (url.startsWith("/users") && met == "DELETE") {
       try {
-        let id = parseInt(req.url.split("/")[2]);
+        let id = parseInt(url.split("/")[2]);
         let eski = users.find((u) => u.id === id);
         if (!eski) throw new Error("User not found");
         let i = users.indexOf(eski);
@@ -191,7 +189,7 @@ const server = http.createServer((req, res) => {
         res.writeHead(404, { "Content-Type": "application/json" });
         res.end(JSON.stringify({ error: err.message }));
       }
-    } else if (req.url === "/register" && req.method === "POST") {
+    } else if (url === "/register" && met === "POST") {
       let body = "";
       req.on("data", (chunk) => (body += chunk));
       req.on("end", () => {
@@ -209,7 +207,7 @@ const server = http.createServer((req, res) => {
           res.end(JSON.stringify({ error: "Invalid user data" }));
         }
       });
-    } else if (req.url === "/login" && req.method === "POST") {
+    } else if (url === "/login" && met === "POST") {
       let body = "";
       req.on("data", (chunk) => (body += chunk));
       req.on("end", () => {
